@@ -24,7 +24,7 @@ import java.util.ArrayList;
 public class PetListActivity extends AppCompatActivity {
 
     private ImageView petImageView;
-    private static final int REQUEST_CODE = 100;
+    private static final int REQUEST_CODE = 100; // successful values, and it can be any number
 
     // This member variable stores the URI to whatever image has been selected
     // Default: none.png (R.drawable.none)
@@ -92,9 +92,15 @@ public class PetListActivity extends AppCompatActivity {
                     Toast.LENGTH_LONG).show();
     }
 
-    @Override
+    @Override // Ctrl + O to get this activity
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
+
+        // Code to handle when the user closes the image gallery (by selecting an image
+        // or pressing the back button
+
+        // intent data is the URI selected from image gallery
+        // RESULT_OK: built in activity
         if(requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null){
             imageURI = data.getData();
             petImageView.setImageURI(imageURI);
@@ -117,7 +123,7 @@ public class PetListActivity extends AppCompatActivity {
         Resources res = context.getResources();
         /** return URI */
 
-        Log.e("imageUri: " + Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
+        Log.i("imageUri: " + Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
                 + "://" + res.getResourcePackageName(resId)
                 + '/' + res.getResourceTypeName(resId)
                 + '/' + res.getResourceEntryName(resId)

@@ -5,7 +5,10 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -16,34 +19,52 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class PetListActivity extends AppCompatActivity {
 
-    private ImageView petImageView;
     private static final int REQUEST_CODE = 100; // successful values, and it can be any number
 
     // This member variable stores the URI to whatever image has been selected
     // Default: none.png (R.drawable.none)
     // (e.g.  android.resource://edu.orangecoastcollege.cs273.nhoang53.petprotector/54 )
     private Uri imageURI;
+    private DBHelper db;
+    private ArrayList<Pet> petList;
+    private ListView petListView;
+    private PetAdapter petAdapter;
+
+    private EditText nameEditText;
+    private EditText detailEditText;
+    private EditText phoneEditText;
+    private ImageView petImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pet_list);
 
+        nameEditText = (EditText) findViewById(R.id.nameEditText);
+        phoneEditText = (EditText) findViewById(R.id.phoneEditText);
+        detailEditText = (EditText) findViewById(R.id.detailEditText);
+
         // Hook up the perImageView to the layout:
         petImageView = (ImageView)findViewById(R.id.petImageView);
 
-        // Constructs a full URI to any android resource (id, drawable, color, layout, etc)
-        //imageURI = getUriToResource(this,R.drawable.none);
+        db = new DBHelper(this);
+        petList = db.getAllPets();
+        petAdapter = new PetAdapter(this, R.layout.pet_list_item, petList);
 
-        // set the imageURI of the ImageView in code
-        //petImageView.setImageURI(imageURI);
+        petListView = (ListView) findViewById(R.id.petListView);
+        petListView.setAdapter(petAdapter);
+
     }
 
     public void selectedPetImage(View view){
@@ -134,5 +155,56 @@ public class PetListActivity extends AppCompatActivity {
                 + '/' + res.getResourceTypeName(resId)
                 + '/' + res.getResourceEntryName(resId)
                         );
+    }
+
+    public void addPet(View view)
+    {
+        if(imageURI != null && !nameEditText.getText().toString().equals("")
+                && !phoneEditText.getText().toString().equals("")
+                && !phoneEditText.getText().toString().equals(""))
+        {
+            String name = nameEditText.getText().toString();
+            String detail = detailEditText.getText().toString();
+            String phone = phoneEditText.getText().toString();
+
+            Pet pet = new Pet(name, detail, phone, imageURI);
+            petAdapter.add(pet); // add to Adapter. It will update ListView
+            db.addPet(pet);
+
+            nameEditText.setText("");
+            detailEditText.setText("");
+            phoneEditText.setText("");
+            imageURI = null;
+
+            String imageName = "none.png";
+            AssetManager am = this.getAssets();
+            try {
+                InputStream stream = am.open(imageName);
+                Drawable drawable = Drawable.createFromStream(stream,imageName );
+                petImageView.setImageDrawable(drawable);
+            } catch (Exception ex) {
+                Log.e("Pet protector.", "Error loading image", ex);
+            }
+        }
+        else{
+            Toast.makeText(this, "All field cannot be empty.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void viewPetDetails(View view)
+    {
+        if(view instanceof LinearLayout)
+        {
+            LinearLayout selectedLinearLayout = (LinearLayout) view;
+            Pet selectedPet = (Pet) selectedLinearLayout.getTag();
+
+            Intent detailsIntent = new Intent(this, PetDetailsActivity.class);
+            detailsIntent.putExtra("Name", selectedPet.getName());
+            detailsIntent.putExtra("Details", selectedPet.getDetail());
+            detailsIntent.putExtra("Phone", selectedPet.getPhone());
+            detailsIntent.putExtra("ImageUri", String.valueOf(selectedPet.getmImageUri()));
+
+            startActivity(detailsIntent);
+        }
     }
 }

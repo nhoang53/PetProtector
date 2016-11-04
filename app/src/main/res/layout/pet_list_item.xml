@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/petListLinearLayout"
+    android:onClick="viewPetDetails">
+
+    <ImageView
+        app:srcCompat="@mipmap/ic_launcher"
+        android:id="@+id/petImageView"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="12dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:text="name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/nameTextView"
+            android:textSize="24sp" />
+
+        <TextView
+            android:text="detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/detailTextView"
+            android:textSize="18sp" />
+    </LinearLayout>
+</LinearLayout>
